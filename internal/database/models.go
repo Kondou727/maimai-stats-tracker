@@ -6,9 +6,11 @@ package database
 
 type Score struct {
 	SongName    string
-	ChartType   int64
-	Difficulty  int64
-	Achievement float64
-	Genre       string
-	Level       float64
+	ChartType   string
+	Difficulty  string
+	Achievement int64
+	FcAp        interface{}
+	Sync        interface{}
+	DxStar      int64
+	DxPercent   int64
 }

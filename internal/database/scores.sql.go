@@ -10,22 +10,29 @@ import (
 )
 
 const createScore = `-- name: CreateScore :one
-INSERT INTO scores (song_name, chart_type, difficulty, achievement, genre, level)
+INSERT INTO scores (song_name, chart_type, difficulty, achievement, fc_ap, sync, dx_star, dx_percent)
 VALUES (
-    ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?
 )
-ON CONFLICT(song_name, difficulty) DO UPDATE SET
-    achievement = excluded.achievement
-RETURNING song_name, chart_type, difficulty, achievement, genre, level
+ON CONFLICT(song_name, chart_type, difficulty) DO UPDATE SET
+    achievement = excluded.achievement,
+    fc_ap = excluded.fc_ap,
+    sync = excluded.sync,
+    dx_star = excluded.dx_star,
+    dx_percent = excluded.dx_percent
+
+RETURNING song_name, chart_type, difficulty, achievement, fc_ap, sync, dx_star, dx_percent
 `
 
 type CreateScoreParams struct {
 	SongName    string
-	ChartType   int64
-	Difficulty  int64
-	Achievement float64
-	Genre       string
-	Level       float64
+	ChartType   string
+	Difficulty  string
+	Achievement int64
+	FcAp        interface{}
+	Sync        interface{}
+	DxStar      int64
+	DxPercent   int64
 }
 
 func (q *Queries) CreateScore(ctx context.Context, arg CreateScoreParams) (Score, error) {
@@ -34,8 +41,10 @@ func (q *Queries) CreateScore(ctx context.Context, arg CreateScoreParams) (Score
 		arg.ChartType,
 		arg.Difficulty,
 		arg.Achievement,
-		arg.Genre,
-		arg.Level,
+		arg.FcAp,
+		arg.Sync,
+		arg.DxStar,
+		arg.DxPercent,
 	)
 	var i Score
 	err := row.Scan(
@@ -43,8 +52,10 @@ func (q *Queries) CreateScore(ctx context.Context, arg CreateScoreParams) (Score
 		&i.ChartType,
 		&i.Difficulty,
 		&i.Achievement,
-		&i.Genre,
-		&i.Level,
+		&i.FcAp,
+		&i.Sync,
+		&i.DxStar,
+		&i.DxPercent,
 	)
 	return i, err
 }

@@ -29,10 +29,10 @@ func main() {
 		scoresDB:        scoresDB,
 		scoresDBQueries: scoresDBQueries,
 	}
-	fmt.Print("Enter path to json file: ")
-	var jsonPath string
-	fmt.Scan(&jsonPath)
-	if err = cfg.ImportScoresToDB(jsonPath); err != nil {
+	fmt.Print("Path to TSV file: ")
+	var tsvPath string
+	fmt.Scan(&tsvPath)
+	if err = cfg.ImportScoresToDB(tsvPath, "tsv_file"); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Score import success!")

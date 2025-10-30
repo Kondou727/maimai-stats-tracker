@@ -2,51 +2,78 @@ package main
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/csv"
+	"log"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/Kondou727/maimai-stats-tracker/internal/database"
+	"github.com/gocarina/gocsv"
 )
 
 type RawScores struct {
-	SongName    string  `json:"songName"`
-	ChartType   int     `json:"chartType"`
-	Difficulty  int     `json:"difficulty"`
-	Achievement float64 `json:"achievement"`
-	Genre       string  `json:"genre"`
-	Level       float64 `json:"level"`
+	SongName    string `csv:"Song"`
+	ChartType   string `csv:"Chart"`
+	Difficulty  string `csv:"Difficulty"`
+	Achievement string `csv:"Achv"`
+	FCAP        string `csv:"FC/AP"`
+	Sync        string `csv:"Sync"`
+	DXStar      int    `csv:"DX ✦"`
+	DXPercent   string `csv:"DX %"`
 }
 
-func ScoresJSONToStruct(jsonPath string) ([]RawScores, error) {
-	jsonData, err := os.ReadFile(jsonPath)
+func ScoresTSVToStruct(tsvPath string) ([]RawScores, error) {
+	tsvFile, err := os.Open(tsvPath)
 	if err != nil {
 		return nil, err
 	}
+	csvreader := csv.NewReader(tsvFile)
+	csvreader.Comma = '\t'
+	csvreader.LazyQuotes = true
 	var rs []RawScores
-	if err := json.Unmarshal(jsonData, &rs); err != nil {
+	if err := gocsv.UnmarshalCSV(csvreader, &rs); err != nil {
 		return nil, err
 	}
 
 	return rs, nil
 }
 
-func (cfg *apiConfig) ImportScoresToDB(jsonPath string) error {
-	scores, err := ScoresJSONToStruct(jsonPath)
+func (cfg *apiConfig) ImportScoresToDB(input string, format string) error {
+	log.Print("processing tsv..")
+	scores, err := ScoresTSVToStruct(input)
 	if err != nil {
 		return err
 	}
+
 	for _, s := range scores {
+		achievementInt, err := percentToInt(s.Achievement)
+		if err != nil {
+			return err
+		}
+
+		dxpercentInt, err := percentToInt(s.DXPercent)
+		if err != nil {
+			return err
+		}
+
 		_, err = cfg.scoresDBQueries.CreateScore(context.Background(), database.CreateScoreParams{
 			SongName:    s.SongName,
-			ChartType:   int64(s.ChartType),
-			Difficulty:  int64(s.Difficulty),
-			Achievement: s.Achievement,
-			Genre:       s.Genre,
-			Level:       s.Level,
+			ChartType:   s.ChartType,
+			Difficulty:  s.Difficulty,
+			Achievement: int64(achievementInt),
+			FcAp:        s.FCAP,
+			Sync:        s.Sync,
+			DxStar:      int64(s.DXStar),
+			DxPercent:   int64(dxpercentInt),
 		})
 		if err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func percentToInt(s string) (int, error) {
+	return strconv.Atoi(strings.ReplaceAll(strings.ReplaceAll(s, "%", ""), ".", ""))
 }

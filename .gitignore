@@ -36,3 +36,4 @@ resources/
 
 # Database stuff
 *.db
+*.tsv

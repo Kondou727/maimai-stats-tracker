@@ -2,14 +2,16 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/csv"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/Kondou727/maimai-stats-tracker/internal/database"
+	scoresdb "github.com/Kondou727/maimai-stats-tracker/internal/database/scores"
 	"github.com/gocarina/gocsv"
+	"github.com/pressly/goose"
 )
 
 type RawScores struct {
@@ -57,7 +59,7 @@ func (cfg *apiConfig) ImportScoresToDB(input string, format string) error {
 			return err
 		}
 
-		_, err = cfg.scoresDBQueries.CreateScore(context.Background(), database.CreateScoreParams{
+		_, err = cfg.scoresDBQueries.CreateScore(context.Background(), scoresdb.CreateScoreParams{
 			SongName:    s.SongName,
 			ChartType:   s.ChartType,
 			Difficulty:  s.Difficulty,
@@ -76,4 +78,20 @@ func (cfg *apiConfig) ImportScoresToDB(input string, format string) error {
 
 func percentToInt(s string) (int, error) {
 	return strconv.Atoi(strings.ReplaceAll(strings.ReplaceAll(s, "%", ""), ".", ""))
+}
+
+func LoadScoresDB() (*sql.DB, error) {
+	scoresDB, err := sql.Open("sqlite", DBFILE)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		return nil, err
+	}
+	if err := goose.Up(scoresDB, "sql/scores/schema"); err != nil {
+		return nil, err
+	}
+	return scoresDB, nil
+
 }

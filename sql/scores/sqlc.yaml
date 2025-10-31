@@ -1,0 +1,9 @@
+version: "2"
+sql:
+  - schema: "./schema"
+    queries: "./queries"
+    engine: "sqlite"
+    gen:
+      go:
+        package: "scoresdb"
+        out: "../../internal/database/scores"

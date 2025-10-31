@@ -5,51 +5,60 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Kondou727/maimai-stats-tracker/internal/database"
-	"github.com/pressly/goose"
+	scoresdb "github.com/Kondou727/maimai-stats-tracker/internal/database/scores"
+	songdatadb "github.com/Kondou727/maimai-stats-tracker/internal/database/songdata"
+
 	_ "modernc.org/sqlite"
 )
 
 const DBFILE = "scores.db"
 
 type apiConfig struct {
-	scoresDB        *sql.DB
-	scoresDBQueries *database.Queries
+	scoresDB          *sql.DB
+	scoresDBQueries   *scoresdb.Queries
+	songdataDB        *sql.DB
+	songdataDBQueries *songdatadb.Queries
 }
 
 func main() {
 	scoresDB, err := LoadScoresDB()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed loading scores DB: %s", err)
 	}
 	defer scoresDB.Close()
 
-	scoresDBQueries := database.New(scoresDB)
-	cfg := apiConfig{
-		scoresDB:        scoresDB,
-		scoresDBQueries: scoresDBQueries,
+	songdataDB, err := LoadSongdataDB()
+	if err != nil {
+		log.Fatalf("Failed loading song data DB: %s", err)
 	}
+	defer songdataDB.Close()
+
+	scoresDBQueries := scoresdb.New(scoresDB)
+	songdataDBQueries := songdatadb.New(songdataDB)
+
+	cfg := apiConfig{
+		scoresDB:          scoresDB,
+		scoresDBQueries:   scoresDBQueries,
+		songdataDB:        songdataDB,
+		songdataDBQueries: songdataDBQueries,
+	}
+	err = cfg.loadTSV()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = cfg.PopulateSongData()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (cfg *apiConfig) loadTSV() error {
 	fmt.Print("Path to TSV file: ")
 	var tsvPath string
 	fmt.Scan(&tsvPath)
-	if err = cfg.ImportScoresToDB(tsvPath, "tsv_file"); err != nil {
-		log.Fatal(err)
+	if err := cfg.ImportScoresToDB(tsvPath, "tsv_file"); err != nil {
+		return err
 	}
-	fmt.Println("Score import success!")
-}
-
-func LoadScoresDB() (*sql.DB, error) {
-	scoresDB, err := sql.Open("sqlite", DBFILE)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := goose.SetDialect("sqlite3"); err != nil {
-		return nil, err
-	}
-	if err := goose.Up(scoresDB, "sql/schema"); err != nil {
-		return nil, err
-	}
-	return scoresDB, nil
-
+	return nil
 }

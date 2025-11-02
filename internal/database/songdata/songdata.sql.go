@@ -72,3 +72,30 @@ func (q *Queries) CreateSong(ctx context.Context, arg CreateSongParams) error {
 	)
 	return err
 }
+
+const returnAllJackets = `-- name: ReturnAllJackets :many
+SELECT image_url FROM songdata
+`
+
+func (q *Queries) ReturnAllJackets(ctx context.Context) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, returnAllJackets)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var image_url string
+		if err := rows.Scan(&image_url); err != nil {
+			return nil, err
+		}
+		items = append(items, image_url)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

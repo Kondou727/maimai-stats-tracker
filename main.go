@@ -11,8 +11,6 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-const DBFILE = "scores.db"
-
 type apiConfig struct {
 	scoresDB          *sql.DB
 	scoresDBQueries   *scoresdb.Queries
@@ -21,6 +19,8 @@ type apiConfig struct {
 }
 
 func main() {
+	log.Printf("Starting maimai-stats-tracker")
+
 	scoresDB, err := LoadScoresDB()
 	if err != nil {
 		log.Fatalf("Failed loading scores DB: %s", err)
@@ -42,15 +42,23 @@ func main() {
 		songdataDB:        songdataDB,
 		songdataDBQueries: songdataDBQueries,
 	}
-	err = cfg.loadTSV()
+	/*
+		err = cfg.loadTSV()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = cfg.PopulateSongData()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	*/
+	err = cfg.pullJackets()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = cfg.PopulateSongData()
-	if err != nil {
-		log.Fatal(err)
-	}
 }
 
 func (cfg *apiConfig) loadTSV() error {

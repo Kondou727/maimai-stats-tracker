@@ -3,5 +3,8 @@ INSERT INTO songdata (artist, catcode, image_url, release, lev_bas, lev_adv, lev
 VALUES (
     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
-ON CONFLICT (artist, title) DO NOTHING
-;
+ON CONFLICT (artist, title) DO NOTHING;
+
+
+-- name: ReturnAllJackets :many
+SELECT image_url FROM songdata;

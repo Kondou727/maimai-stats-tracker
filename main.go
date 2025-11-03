@@ -48,12 +48,12 @@ func main() {
 			log.Fatal(err)
 		}
 
-		err = cfg.PopulateSongData()
-		if err != nil {
-			log.Fatal(err)
-		}
-
 	*/
+	err = cfg.PopulateSongData()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = cfg.pullJackets()
 	if err != nil {
 		log.Fatal(err)

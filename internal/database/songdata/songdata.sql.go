@@ -11,70 +11,52 @@ import (
 )
 
 const createSong = `-- name: CreateSong :exec
-INSERT INTO songdata (artist, catcode, image_url, release, lev_bas, lev_adv, lev_exp, lev_mas, sort, title, title_kana, version, lev_remas, dx_lev_bas, dx_lev_adv, dx_lev_exp, dx_lev_mas, dx_lev_remas, date, lev_utage, kanji, comment, buddy)
-VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+INSERT INTO songdata (
+    id, title, artist, genre, img, release, version, is_dx, diff, level, const, is_utage, is_buddy
 )
-ON CONFLICT (artist, title) DO NOTHING
+VALUES (
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+ON CONFLICT (id, diff, is_dx, is_utage) DO NOTHING
 `
 
 type CreateSongParams struct {
-	Artist     string
-	Catcode    string
-	ImageUrl   string
-	Release    string
-	LevBas     sql.NullString
-	LevAdv     sql.NullString
-	LevExp     sql.NullString
-	LevMas     sql.NullString
-	Sort       string
-	Title      string
-	TitleKana  string
-	Version    string
-	LevRemas   sql.NullString
-	DxLevBas   sql.NullString
-	DxLevAdv   sql.NullString
-	DxLevExp   sql.NullString
-	DxLevMas   sql.NullString
-	DxLevRemas sql.NullString
-	Date       sql.NullString
-	LevUtage   sql.NullString
-	Kanji      sql.NullString
-	Comment    sql.NullString
-	Buddy      sql.NullString
+	ID      string
+	Title   string
+	Artist  string
+	Genre   string
+	Img     string
+	Release string
+	Version string
+	IsDx    bool
+	Diff    string
+	Level   string
+	Const   interface{}
+	IsUtage bool
+	IsBuddy sql.NullString
 }
 
 func (q *Queries) CreateSong(ctx context.Context, arg CreateSongParams) error {
 	_, err := q.db.ExecContext(ctx, createSong,
-		arg.Artist,
-		arg.Catcode,
-		arg.ImageUrl,
-		arg.Release,
-		arg.LevBas,
-		arg.LevAdv,
-		arg.LevExp,
-		arg.LevMas,
-		arg.Sort,
+		arg.ID,
 		arg.Title,
-		arg.TitleKana,
+		arg.Artist,
+		arg.Genre,
+		arg.Img,
+		arg.Release,
 		arg.Version,
-		arg.LevRemas,
-		arg.DxLevBas,
-		arg.DxLevAdv,
-		arg.DxLevExp,
-		arg.DxLevMas,
-		arg.DxLevRemas,
-		arg.Date,
-		arg.LevUtage,
-		arg.Kanji,
-		arg.Comment,
-		arg.Buddy,
+		arg.IsDx,
+		arg.Diff,
+		arg.Level,
+		arg.Const,
+		arg.IsUtage,
+		arg.IsBuddy,
 	)
 	return err
 }
 
 const returnAllJackets = `-- name: ReturnAllJackets :many
-SELECT image_url FROM songdata
+SELECT img FROM songdata
 `
 
 func (q *Queries) ReturnAllJackets(ctx context.Context) ([]string, error) {
@@ -85,11 +67,11 @@ func (q *Queries) ReturnAllJackets(ctx context.Context) ([]string, error) {
 	defer rows.Close()
 	var items []string
 	for rows.Next() {
-		var image_url string
-		if err := rows.Scan(&image_url); err != nil {
+		var img string
+		if err := rows.Scan(&img); err != nil {
 			return nil, err
 		}
-		items = append(items, image_url)
+		items = append(items, img)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

@@ -1,10 +1,12 @@
 -- name: CreateSong :exec
-INSERT INTO songdata (artist, catcode, image_url, release, lev_bas, lev_adv, lev_exp, lev_mas, sort, title, title_kana, version, lev_remas, dx_lev_bas, dx_lev_adv, dx_lev_exp, dx_lev_mas, dx_lev_remas, date, lev_utage, kanji, comment, buddy)
-VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+INSERT INTO songdata (
+    id, title, artist, genre, img, release, version, is_dx, diff, level, const, is_utage, is_buddy
 )
-ON CONFLICT (artist, title) DO NOTHING;
+VALUES (
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+ON CONFLICT (id, diff, is_dx, is_utage) DO NOTHING;
 
 
 -- name: ReturnAllJackets :many
-SELECT image_url FROM songdata;
+SELECT img FROM songdata;

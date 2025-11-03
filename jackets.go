@@ -36,8 +36,8 @@ func (cfg *apiConfig) pullJackets() error {
 
 		wg.Go(func() {
 			defer sem.Release(1)
-			link := SERVER_MUSIC_JACKET_BASE_URL + j
-			filename := JACKET_PATH + j
+			link := SERVER_MUSIC_JACKET_BASE_URL + j + ".png"
+			filename := JACKET_PATH + j + ".png"
 
 			f, err := os.OpenFile(filename, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0644)
 			if err != nil {

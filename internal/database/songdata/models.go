@@ -9,27 +9,17 @@ import (
 )
 
 type Songdatum struct {
-	Artist     string
-	Catcode    string
-	ImageUrl   string
-	Release    string
-	LevBas     sql.NullString
-	LevAdv     sql.NullString
-	LevExp     sql.NullString
-	LevMas     sql.NullString
-	Sort       string
-	Title      string
-	TitleKana  string
-	Version    string
-	LevRemas   sql.NullString
-	DxLevBas   sql.NullString
-	DxLevAdv   sql.NullString
-	DxLevExp   sql.NullString
-	DxLevMas   sql.NullString
-	DxLevRemas sql.NullString
-	Date       sql.NullString
-	LevUtage   sql.NullString
-	Kanji      sql.NullString
-	Comment    sql.NullString
-	Buddy      sql.NullString
+	ID      string
+	Title   string
+	Artist  string
+	Genre   string
+	Img     string
+	Release string
+	Version string
+	IsDx    bool
+	Diff    string
+	Level   string
+	Const   interface{}
+	IsUtage bool
+	IsBuddy sql.NullString
 }

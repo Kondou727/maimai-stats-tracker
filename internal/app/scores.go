@@ -82,7 +82,7 @@ func percentToInt(s string) (int, error) {
 	return strconv.Atoi(strings.ReplaceAll(strings.ReplaceAll(s, "%", ""), ".", ""))
 }
 
-func loadScoresDB() (*sql.DB, error) {
+func LoadScoresDB() (*sql.DB, error) {
 	scoresDB, err := sql.Open("sqlite", DBFILE)
 	if err != nil {
 		return nil, err

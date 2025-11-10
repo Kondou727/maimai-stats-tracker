@@ -3,10 +3,11 @@ package main
 import (
 	"log"
 
-	"github.com/Kondou727/maimai-stats-tracker/internal/app"
-	"github.com/Kondou727/maimai-stats-tracker/internal/config"
+	app "github.com/Kondou727/maimai-stats-tracker/internal/app"
+	config "github.com/Kondou727/maimai-stats-tracker/internal/config"
 	scoresdb "github.com/Kondou727/maimai-stats-tracker/internal/database/scores"
 	songdatadb "github.com/Kondou727/maimai-stats-tracker/internal/database/songdata"
+	"github.com/Kondou727/maimai-stats-tracker/internal/gui"
 	_ "modernc.org/sqlite"
 )
 
@@ -51,4 +52,5 @@ func main() {
 		log.Fatal(err)
 	}
 
+	gui.Run(&cfg)
 }

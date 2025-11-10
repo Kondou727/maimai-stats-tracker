@@ -1,23 +1,22 @@
 package gui
 
 import (
+	"log"
+
 	g "github.com/AllenDang/giu"
 	"github.com/Kondou727/maimai-stats-tracker/internal/config"
 )
 
-func Loop() {
-	g.MainMenuBar().Layout(
-		g.Menu("File").Layout(
-			g.MenuItem("Open"),
-			g.Separator(),
-			g.MenuItem("Exit"),
+func Loop(cfg *config.ApiConfig) {
+	g.SingleWindow().Layout(
+		g.TabBar().TabItems(
+			g.TabItem("Load Scores").Layout(LoadScoreView(cfg)),
 		),
-		g.Menu("Misc").Layout(
-			g.Button("Button"),
-		),
-	).Build()
+	)
 }
 
 func Run(cfg *config.ApiConfig) {
-
+	log.Print("Running gui...")
+	w := g.NewMasterWindow("maimai-stats-tracker", 1280, 720, 0)
+	w.Run(func() { Loop(cfg) })
 }

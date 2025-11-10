@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Kondou727/maimai-stats-tracker/internal/config"
 	songdatadb "github.com/Kondou727/maimai-stats-tracker/internal/database/songdata"
 	"github.com/pressly/goose"
 )
@@ -18,7 +19,7 @@ const MAIMAI_SONGS_JSON_LINK = "https://maimai.sega.jp/data/maimai_songs.json"
 const REIWA_JSON_LINK = "https://reiwa.f5.si/maimai_record.json"
 
 // Fills the songdata.db
-func (cfg *apiConfig) PopulateSongData() error {
+func PopulateSongData(cfg *config.ApiConfig) error {
 
 	songs, records, err := pullJson()
 	if err != nil {
@@ -44,7 +45,7 @@ func (cfg *apiConfig) PopulateSongData() error {
 			IsUtage: false,
 			IsBuddy: sql.NullString{String: "", Valid: true},
 		}
-		err := cfg.songdataDBQueries.CreateSong(context.Background(), params)
+		err := cfg.SongdataDBQueries.CreateSong(context.Background(), params)
 		if err != nil {
 			log.Printf("CreateSong failed: %s", err)
 			return err
@@ -67,7 +68,7 @@ func (cfg *apiConfig) PopulateSongData() error {
 				IsUtage: true,
 				IsBuddy: sql.NullString{String: s.Buddy, Valid: true},
 			}
-			err := cfg.songdataDBQueries.CreateSong(context.Background(), params)
+			err := cfg.SongdataDBQueries.CreateSong(context.Background(), params)
 			if err != nil {
 				log.Printf("CreateSong failed: %s", err)
 				return err

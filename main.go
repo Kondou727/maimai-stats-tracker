@@ -1,33 +1,25 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 
+	"github.com/Kondou727/maimai-stats-tracker/internal/app"
+	"github.com/Kondou727/maimai-stats-tracker/internal/config"
 	scoresdb "github.com/Kondou727/maimai-stats-tracker/internal/database/scores"
 	songdatadb "github.com/Kondou727/maimai-stats-tracker/internal/database/songdata"
-
 	_ "modernc.org/sqlite"
 )
-
-type apiConfig struct {
-	scoresDB          *sql.DB
-	scoresDBQueries   *scoresdb.Queries
-	songdataDB        *sql.DB
-	songdataDBQueries *songdatadb.Queries
-}
 
 func main() {
 	log.Printf("Starting maimai-stats-tracker")
 
-	scoresDB, err := LoadScoresDB()
+	scoresDB, err := app.LoadScoresDB()
 	if err != nil {
 		log.Fatalf("Failed loading scores DB: %s", err)
 	}
 	defer scoresDB.Close()
 
-	songdataDB, err := LoadSongdataDB()
+	songdataDB, err := app.LoadSongdataDB()
 	if err != nil {
 		log.Fatalf("Failed loading song data DB: %s", err)
 	}
@@ -36,11 +28,11 @@ func main() {
 	scoresDBQueries := scoresdb.New(scoresDB)
 	songdataDBQueries := songdatadb.New(songdataDB)
 
-	cfg := apiConfig{
-		scoresDB:          scoresDB,
-		scoresDBQueries:   scoresDBQueries,
-		songdataDB:        songdataDB,
-		songdataDBQueries: songdataDBQueries,
+	cfg := config.ApiConfig{
+		ScoresDB:          scoresDB,
+		ScoresDBQueries:   scoresDBQueries,
+		SongdataDB:        songdataDB,
+		SongdataDBQueries: songdataDBQueries,
 	}
 	/*
 		err = cfg.loadTSV()
@@ -49,24 +41,14 @@ func main() {
 		}
 
 	*/
-	err = cfg.PopulateSongData()
+	err = app.PopulateSongData(&cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = cfg.pullJackets()
+	err = app.PullJackets(&cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-}
-
-func (cfg *apiConfig) loadTSV() error {
-	fmt.Print("Path to TSV file: ")
-	var tsvPath string
-	fmt.Scan(&tsvPath)
-	if err := cfg.ImportScoresToDB(tsvPath, "tsv_file"); err != nil {
-		return err
-	}
-	return nil
 }

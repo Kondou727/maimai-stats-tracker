@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"context"
@@ -8,10 +8,11 @@ import (
 	"os"
 	"sync"
 
+	"github.com/Kondou727/maimai-stats-tracker/internal/config"
 	"golang.org/x/sync/semaphore"
 )
 
-func (cfg *apiConfig) pullJackets() error {
+func PullJackets(cfg *config.ApiConfig) error {
 	var wg sync.WaitGroup
 
 	const JACKET_PATH = "resources/jackets/"
@@ -21,7 +22,7 @@ func (cfg *apiConfig) pullJackets() error {
 		return err
 	}
 
-	jackets, err := cfg.songdataDBQueries.ReturnAllJackets(context.Background())
+	jackets, err := cfg.SongdataDBQueries.ReturnAllJackets(context.Background())
 	if err != nil {
 		log.Printf("failed to get jackets: %s", err)
 		return err

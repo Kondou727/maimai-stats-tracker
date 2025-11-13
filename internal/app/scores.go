@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"encoding/csv"
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -43,7 +42,7 @@ func scoresTSVToStruct(tsvPath string) ([]RawScores, error) {
 	return rs, nil
 }
 
-func ImportScoresToDB(input string, format string, cfg *config.ApiConfig) error {
+func ImportTSVToDB(input string, cfg *config.ApiConfig) error {
 	log.Print("processing tsv..")
 	scores, err := scoresTSVToStruct(input)
 	if err != nil {
@@ -96,14 +95,4 @@ func LoadScoresDB() (*sql.DB, error) {
 	}
 	return scoresDB, nil
 
-}
-
-func LoadTSV(cfg *config.ApiConfig) error {
-	fmt.Print("Path to TSV file: ")
-	var tsvPath string
-	fmt.Scan(&tsvPath)
-	if err := ImportScoresToDB(tsvPath, "tsv_file", cfg); err != nil {
-		return err
-	}
-	return nil
 }
